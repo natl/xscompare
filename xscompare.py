@@ -14,7 +14,7 @@ G4DATADIR = "/path/to/geant4/shared/data"
 WATER = {"1": 2./18., "16": 16./18.}
 DAVIS = materials.addChemicals([(WATER, 1.00)])
 
-PARTICLES_IMPL = ["proton", "e-", "neutron", "photon"]
+PARTICLES_IMPL = ["neutron"]
 INVALID_PARTICLE = "Particle must be in " + " ".join(PARTICLES_IMPL)
 
 DATA_PREFIX = {"neutron": [G4DATADIR+"/G4NEUTRONXS1.4/cap",
@@ -33,5 +33,12 @@ def getxs(material, particle, min_en, max_en):
     """
     """
     assert particle in PARTICLES_IMPL, INVALID_PARTICLE
+
+    ens = np.arange(min_en, max_en + 1e-4, 1e-4)
+    xs = []
+    for (el, mf) in material.materials:
+        files = [file(prefix + str(el) + DATA_SUFFIX[particle], 'r')
+                 for prefix in DATA_PREFIX[particle]]
+     # TODO
 
     return None

@@ -45,36 +45,42 @@
 #include "G4PhysicsConstructorRegistry.hh"
 #include "G4RunManager.hh"
 
+// SaveXS
+#include "G4Material.hh"
+#include "G4NistManager.hh"
+#include "G4EmCalculator.hh"
+#include <fstream>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MacroPhysicsList::MacroPhysicsList() :
+PhysicsList::PhysicsList() :
     G4VModularPhysicsList(),
     fMessenger(0)
 {
-    fMessenger = new MacroPhysicsListMessenger(this);
+    fMessenger = new PhysicsListMessenger(this);
     SetVerboseLevel(1);
 
 
-    // Synchrotron Radiation and GN Physics
-    RegisterPhysics(new G4EmExtraPhysics(verboseLevel));
-    // Register the Hadronic Physics
-    RegisterPhysics(new G4DecayPhysics(verboseLevel));
-    RegisterPhysics(new G4HadronElasticPhysicsHP(verboseLevel));
-    RegisterPhysics(new G4HadronPhysicsQGSP_BIC_HP(verboseLevel));
-    RegisterPhysics(new G4StoppingPhysics(verboseLevel) );
-    RegisterPhysics(new G4IonPhysics(verboseLevel));
+    // // Synchrotron Radiation and GN Physics
+    // RegisterPhysics(new G4EmExtraPhysics(verboseLevel));
+    // // Register the Hadronic Physics
+    // RegisterPhysics(new G4DecayPhysics(verboseLevel));
+    // RegisterPhysics(new G4HadronElasticPhysicsHP(verboseLevel));
+    // RegisterPhysics(new G4HadronPhysicsQGSP_BIC_HP(verboseLevel));
+    // RegisterPhysics(new G4StoppingPhysics(verboseLevel) );
+    // RegisterPhysics(new G4IonPhysics(verboseLevel));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MacroPhysicsList::~MacroPhysicsList()
+PhysicsList::~PhysicsList()
 {
     delete fMessenger;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MacroPhysicsList::ConstructProcess()
+void PhysicsList::ConstructProcess()
 {
     // physics constructors
     //
@@ -88,11 +94,11 @@ void MacroPhysicsList::ConstructProcess()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MacroPhysicsList::RegisterConstructor(const G4String& name)
+void PhysicsList::RegisterConstructor(const G4String& name)
 {
     if (verboseLevel > -1)
     {
-        G4cout << "MacroPhysicsList::RegisterConstructor: <" << name << ">"
+        G4cout << "PhysicsList::RegisterConstructor: <" << name << ">"
                << G4endl;
     }
 
@@ -114,9 +120,55 @@ void MacroPhysicsList::RegisterConstructor(const G4String& name)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MacroPhysicsList::SetMinEnergyRange(const G4double minEnergy)
+void PhysicsList::SetMinEnergyRange(const G4double minEnergy)
 {
     G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(minEnergy,
         1*GeV);
     G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
+    G4double en_min, G4double en_max)
+{
+    G4NistManager* nist = G4NistManager::Instance();
+    G4Material* mat;
+    //Make custom materials here
+    if (material == "cellular")
+    {
+        G4Element* elK  = new G4Element("Potassium", "K", 19., 39.1*g/mole);
+        mat = new G4Material("custom", 1000*kg/m3, 2);
+        mat->AddMaterial(fpWaterMaterial, 99.63*perCent);
+        mat->AddElement (elK, 00.37*perCent);
+    }
+    else
+    {
+        mat = nist->FindOrBuildMaterial(material);
+    }
+    G4String filename = G4String(particle + "_" + material + "_" +
+        G4UICommand::ConvertToString(process) + "_" +
+        G4UICommand::ConvertToString(en_min) + "_" +
+        G4UICommand::ConvertToString(en_max) + ".dat")
+
+    G4double xs;
+    G4double en = en_min;
+
+    ofstream file;
+    file << "# energy_MeV xsection\n";
+    while (en < en_max)
+    {
+        xs = G4EmCalculator::ComputeCrossSectionPerVolume(en, particle,
+            process, mat);
+        file << en << " " << xs << "\n";
+        en = en + 100*eV;
+    }
+
+    file.close();
+
+
+
+    delete nist;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

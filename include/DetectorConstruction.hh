@@ -5,15 +5,15 @@
 
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
-  public:
-    DetectorConstruction();
-    virtual ~DetectorConstruction();
+    public:
+        DetectorConstruction();
+        virtual ~DetectorConstruction();
 
-    virtual G4VPhysicalVolume* Construct();
+        virtual G4VPhysicalVolume* Construct();
 
-  protected:
+    protected:
 
-  private:
+    private:
 
 };
 

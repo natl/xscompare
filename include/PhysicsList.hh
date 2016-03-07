@@ -10,18 +10,20 @@ class PhysicsListMessenger;
 
 class PhysicsList: public G4VModularPhysicsList
 {
-public:
-  PhysicsList();
-  ~PhysicsList();
+    public:
+          PhysicsList();
+          ~PhysicsList();
 
-  void RegisterConstructor(const G4String& name);
-  void SetMinEnergyRange(const G4double);
-  virtual void ConstructProcess();
+          void RegisterConstructor(const G4String& name);
+          void SetMinEnergyRange(const G4double);
+          virtual void ConstructProcess();
 
-private:
-  G4String fEmName;
+          void SaveXS(G4String, G4String, G4double, G4double);
 
-  PhysicsListMessenger* fMessenger;
+    private:
+          G4String fEmName;
+
+          PhysicsListMessenger* fMessenger;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

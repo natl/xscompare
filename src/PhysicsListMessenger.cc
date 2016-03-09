@@ -30,10 +30,10 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList* pPhys):
     fMinEnergyCmd->SetParameterName("energy",250*eV);
     fMinEnergyCmd->AvailableForStates(G4State_PreInit);
 
-    fMakeFileCmd = new G4UICmdWithAString("/phys/printxs", this);
+    fMakeFileCmd = new G4UIcmdWithAString("/phys/printxs", this);
     fMakeFileCmd->SetGuidance("Make a file containing cross sections");
     fMakeFileCmd->SetGuidance(
-        "/phys/printxs particle material en_min_MeV en_max_MeV");
+        "/phys/printxs particle material process en_min_MeV en_max_MeV");
     fMakeFileCmd->AvailableForStates(G4State_Idle);
 }
 
@@ -58,12 +58,13 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
             fMinEnergyCmd->GetNewDoubleValue(newValue));
     else if (command == fMakeFileCmd)
     {
-        std::vector<std::string> split(strvec, ' ');
+        std::vector<std::string> strvec = split(newValue, ' ');
         G4String particle = strvec[0];
         G4String material = strvec[1];
-        G4double en_min = std::stod(strvec[2])*MeV;
-        G4double en_max = std::stod(strvec[3])*MeV;
-        fPhysicsList->SaveXS(particle, material, en_min, en_max);
+        G4String process = strvec[2];
+        G4double en_min = std::stod(strvec[3])*MeV;
+        G4double en_max = std::stod(strvec[4])*MeV;
+        fPhysicsList->SaveXS(particle, material, process, en_min, en_max);
     }
 
 }

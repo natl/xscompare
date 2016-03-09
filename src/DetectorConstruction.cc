@@ -40,7 +40,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   G4Box* solidBox = new G4Box("box", 0.1*m, 0.1*m, 0.1*m);
 
-  G4LogicalVolume* logicBox = new G4LogicalVolume(solidEnv, water_mat, "box");
+  G4LogicalVolume* logicBox = new G4LogicalVolume(solidBox, water_mat, "box");
 
   new G4PVPlacement(0, G4ThreeVector(), logicBox, "Box", logicWorld, false, 0,
     checkOverlaps);

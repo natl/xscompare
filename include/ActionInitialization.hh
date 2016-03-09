@@ -1,5 +1,5 @@
-#ifndef ACTION_INITIALISATION_HH
-#define ACTION_INITIALISATION_HH
+#ifndef ACTION_INITIALIZATION_HH
+#define ACTION_INITIALIZATION_HH
 
 //parent
 #include "G4VUserActionInitialization.hh"
@@ -12,8 +12,8 @@
 class ActionInitialization : public G4VUserActionInitialization
 {
     public:
-        MacroActionInitialization();
-        virtual ~MacroActionInitialization();
+        ActionInitialization();
+        virtual ~ActionInitialization();
 
         virtual void BuildForMaster() const;
         virtual void Build() const;
@@ -21,4 +21,4 @@ class ActionInitialization : public G4VUserActionInitialization
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#endif // ACTION_INITIALISATION_HH
+#endif // ACTION_INITIALIZATION_HH

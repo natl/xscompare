@@ -1,5 +1,5 @@
 #include "DetectorConstruction.hh"
-#include "ActionInitialisation.hh"
+#include "ActionInitialization.hh"
 #include "PhysicsList.hh"
 
 #ifdef G4MULTITHREADED
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
   runManager->SetUserInitialization(new DetectorConstruction());
   runManager->SetUserInitialization(new PhysicsList());
-  runManager->SetUserInitialization(new ActionInitialisation());
+  runManager->SetUserInitialization(new ActionInitialization());
 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 

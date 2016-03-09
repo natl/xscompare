@@ -1,4 +1,5 @@
 #include "PhysicsList.hh"
+#include "PhysicsListMessenger.hh"
 
 // Physics Lists available
 #include "G4EmLivermorePhysics.hh"
@@ -49,6 +50,9 @@
 #include "G4Material.hh"
 #include "G4NistManager.hh"
 #include "G4EmCalculator.hh"
+#include "G4UIcommand.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
 #include <fstream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -137,9 +141,10 @@ void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
     //Make custom materials here
     if (material == "cellular")
     {
+        G4Material* water = nist->FindOrBuildMaterial(material);
         G4Element* elK  = new G4Element("Potassium", "K", 19., 39.1*g/mole);
         mat = new G4Material("custom", 1000*kg/m3, 2);
-        mat->AddMaterial(fpWaterMaterial, 99.63*perCent);
+        mat->AddMaterial(water, 99.63*perCent);
         mat->AddElement (elK, 00.37*perCent);
     }
     else
@@ -147,18 +152,20 @@ void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
         mat = nist->FindOrBuildMaterial(material);
     }
     G4String filename = G4String(particle + "_" + material + "_" +
-        G4UICommand::ConvertToString(process) + "_" +
-        G4UICommand::ConvertToString(en_min) + "_" +
-        G4UICommand::ConvertToString(en_max) + ".dat")
+        G4UIcommand::ConvertToString(process) + "_" +
+        G4UIcommand::ConvertToString(en_min) + "_" +
+        G4UIcommand::ConvertToString(en_max) + ".dat");
 
     G4double xs;
     G4double en = en_min;
-
-    ofstream file;
+    G4ParticleDefinition* thisParticleDefn =
+        G4ParticleTable::GetParticleTable()->FindParticle(particle);
+    std::ofstream file;
     file << "# energy_MeV xsection\n";
+    G4EmCalculator* calculator = new G4EmCalculator();
     while (en < en_max)
     {
-        xs = G4EmCalculator::ComputeCrossSectionPerVolume(en, particle,
+        xs = calculator->ComputeCrossSectionPerVolume(en, thisParticleDefn,
             process, mat);
         file << en << " " << xs << "\n";
         en = en + 100*eV;

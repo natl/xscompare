@@ -141,26 +141,67 @@ void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
     //Make custom materials here
     if (material == "cellular")
     {
-        G4Material* water = nist->FindOrBuildMaterial(material);
+        G4cout << "Building " << material << " material." << G4endl;
+        G4Material* water = nist->FindOrBuildMaterial("G4_WATER");
         G4Element* elK  = new G4Element("Potassium", "K", 19., 39.1*g/mole);
-        mat = new G4Material("custom", 1000*kg/m3, 2);
+        mat = new G4Material("cellular", 1000*kg/m3, 2);
         mat->AddMaterial(water, 99.63*perCent);
         mat->AddElement (elK, 00.37*perCent);
     }
+    if (material == "davis")
+    {
+        G4cout << "Building " << material << " material." << G4endl;
+        G4Material* water = nist->FindOrBuildMaterial("G4_WATER");
+        G4Element* elN  = new G4Element("Nitrogen", "N", 14., 14.007*g/mole);
+        G4Element* elH  = new G4Element("Hydrogen", "H", 1., 1.008*g/mole);
+        G4Element* elS  = new G4Element("Sulfur", "S", 16., 32.06*g/mole);
+        G4Element* elO  = new G4Element("Oxygen", "O", 8., 15.999*g/mole);
+        G4Element* elK  = new G4Element("Potassium", "K", 19., 39.098*g/mole);
+        G4Element* elP  = new G4Element("Phosphorous", "P", 15., 30.973*g/mole);
+        G4Element* elMg  = new G4Element("Magnesium", "Mg", 12., 24.305*g/mole);
+        G4Element* elNa  = new G4Element("Sodium", "Na", 11., 22.989*g/mole);
+        G4Element* elC  = new G4Element("Carbon", "C", 12., 12.011*g/mole);
+        mat = new G4Material("davis", 1000*kg/m3, 10);
+        mat->AddMaterial(water, (100-1.0853)*perCent);
+        mat->AddElement (elN, 00.0212*perCent);
+        mat->AddElement (elH, 00.0163*perCent);
+        mat->AddElement (elS, 00.0269*perCent);
+        mat->AddElement (elO, 00.443*perCent);
+        mat->AddElement (elK, 00.372*perCent);
+        mat->AddElement (elP, 00.170*perCent);
+        mat->AddElement (elMg, 00.0020*perCent);
+        mat->AddElement (elNa, 00.0117*perCent);
+        mat->AddElement (elC, 00.0222*perCent);
+    }
     else
     {
+        G4cout << "Finding material " << material << " in NIST database"
+               << G4endl;
         mat = nist->FindOrBuildMaterial(material);
+        if (!mat)
+        {
+            G4cerr << "Material not found"<< G4endl;
+            return;
+        }
     }
+
     G4String filename = G4String(particle + "_" + material + "_" +
-        G4UIcommand::ConvertToString(process) + "_" +
+        process + "_" +
         G4UIcommand::ConvertToString(en_min) + "_" +
         G4UIcommand::ConvertToString(en_max) + ".dat");
 
+    G4cout << "saving filename: " << filename << G4endl;
     G4double xs;
     G4double en = en_min;
+
     G4ParticleDefinition* thisParticleDefn =
         G4ParticleTable::GetParticleTable()->FindParticle(particle);
-    std::ofstream file;
+
+    G4cout << "Saving xs for " << thisParticleDefn->GetParticleName()
+           << " in material " << mat->GetName() << ". Process: " << process
+           << G4endl;
+
+    std::ofstream file(filename, std::ofstream::out);
     file << "# energy_MeV xsection\n";
     G4EmCalculator* calculator = new G4EmCalculator();
     while (en < en_max)
@@ -173,9 +214,6 @@ void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
 
     file.close();
 
-
-
-    delete nist;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -1,19 +1,44 @@
+/run/verbose 0
+
 # Load Physics
 
-/phys/addPhysics EmStandardPhysics_option4
+/phys/addPhysics G4EmStandardPhysics_option4
 
 /run/setCut 1 nm
 /cuts/setLowEdge 10 eV
 
-/run/initialise
+/process/em/auger true
+/process/em/augerCascade true
+/process/em/pixe true
+/process/em/fluo true
 
+/process/list
+
+/run/initialize
 
 # Check that the simulation functions as expected
-/gun/particle e-
 /gun/energy 100 keV
+/gun/particle e-
+
 
 /run/beamOn 1
 
-# Save a cross-section (particle process material min_en max_en)
+# Save a cross-section (particle material process min_en max_en)
 # Energies are in MeV
-/phys/printxs e- msc G4_WATER 0.0001 10
+/phys/printxs e- G4_WATER msc 0.0001 10
+/phys/printxs e- G4_WATER eIoni 0.0001 10
+/phys/printxs e- G4_WATER eBrem 0.0001 10
+
+/phys/printxs e- davis msc 0.0001 10
+/phys/printxs e- davis eIoni 0.0001 10
+/phys/printxs e- davis brem 0.0001 10
+
+/phys/printxs gamma G4_WATER conv 0.0001 10
+/phys/printxs gamma G4_WATER photo 0.0001 10
+/phys/printxs gamma G4_WATER compt 0.0001 10
+/phys/printxs gamma G4_WATER Rayl 0.0001 10
+
+/phys/printxs gamma davis conv 0.0001 10
+/phys/printxs gamma davis photo 0.0001 10
+/phys/printxs gamma davis compt 0.0001 10
+/phys/printxs gamma davis Rayl 0.0001 10

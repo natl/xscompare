@@ -47,6 +47,8 @@ target_link_libraries(xscompare ${Geant4_LIBRARIES})
 
 file(GLOB PROJECT_FILES
     "*.mac"
+    "materials.py"
+    "xscompare.py"
     )
 
 foreach(_script)

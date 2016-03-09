@@ -1,0 +1,19 @@
+# Load Physics
+
+/phys/addPhysics EmStandardPhysics_option4
+
+/run/setCut 1 nm
+/cuts/setLowEdge 10 eV
+
+/run/initialise
+
+
+# Check that the simulation functions as expected
+/gun/particle e-
+/gun/energy 100 keV
+
+/run/beamOn 1
+
+# Save a cross-section (particle process material min_en max_en)
+# Energies are in MeV
+/phys/printxs e- msc G4_WATER 0.0001 10

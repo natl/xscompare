@@ -225,6 +225,7 @@ void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
     std::ofstream file(filename, std::ofstream::out);
     file << "# energy_MeV xsection_mm^-1\n";
     G4EmCalculator* calculator = new G4EmCalculator();
+    calculator->SetVerbose(2);
     while (en < en_max)
     {
         xs = calculator->ComputeCrossSectionPerVolume(en, thisParticleDefn,

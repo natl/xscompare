@@ -39,24 +39,6 @@
 /phys/printxs e- cellular eBrem 0.0001 10
 
 
-
-/phys/printxs gamma water conv 0.0001 10
-/phys/printxs gamma water phot 0.0001 10
-/phys/printxs gamma water compt 0.0001 10
-/phys/printxs gamma water Rayl 0.0001 10
-
-/phys/printxs gamma davis conv 0.0001 10
-/phys/printxs gamma davis phot 0.0001 10
-/phys/printxs gamma davis compt 0.0001 10
-/phys/printxs gamma davis Rayl 0.0001 10
-
-/phys/printxs gamma cellular conv 0.0001 10
-/phys/printxs gamma cellular phot 0.0001 10
-/phys/printxs gamma cellular compt 0.0001 10
-/phys/printxs gamma cellular Rayl 0.0001 10
-
-
-
 /phys/printxs proton water msc 0.0001 10
 /phys/printxs proton water eIoni 0.0001 10
 /phys/printxs proton water eBrem 0.0001 10

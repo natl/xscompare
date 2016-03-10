@@ -73,7 +73,7 @@ def comparison_plot(files1, files2, label1, label2, xvals):
     ax1.plot(xvals*1000., yvals1, "r-", label=label1)
     ax1.plot(xvals*1000., yvals2, "b--", label=label2)
     plt.legend()
-    #plt.setp(ax1.get_xticklabels(), visible=False)
+    plt.setp(ax1.get_xticklabels(), visible=False)
 
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel(r"Difference (%)")
@@ -82,6 +82,9 @@ def comparison_plot(files1, files2, label1, label2, xvals):
     ax2.set_ylim([-1.1*maxabsdiff, 1.1*maxabsdiff])
     ax2.plot(xvals*1000., diff, "r-")
     ax2.plot(xvals*1000., np.zeros(len(xvals)), 'b:')
+    ax2.set_yticks(ax.get_yticks()[:-1])
+
+    fig.subplots_adjust(hspace=0)
 
     return fig
 

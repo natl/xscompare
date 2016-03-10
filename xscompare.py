@@ -9,6 +9,20 @@ from __future__ import division, print_function, unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
+import matplotlib.gridspec as gridspec
+
+
+from matplotlib import rcParams
+
+rcParams['font.family'] = 'serif'
+rcParams['font.serif'] = ['Times']
+rcParams['text.usetex'] = True
+rcParams['axes.labelsize'] = 8
+rcParams['xtick.labelsize'] = 7
+rcParams['ytick.labelsize'] = 7
+rcParams['legend.fontsize'] = 8
+
+
 # G4DATADIR = "/path/to/geant4/shared/data"
 # WATER = {"1": 2./18., "16": 16./18.}
 # #DAVIS = materials.addChemicals([(WATER, 1.00)])
@@ -64,27 +78,32 @@ def comparison_plot(files1, files2, label1, label2, xvals):
         yvals2 += np.interp(xvals, xp, yp, left=0, right=0)
 
     diff = 100*(yvals1 - yvals2)/yvals1
+    gs = gridspec.GridSpec(3,1)
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(211)
+    fig = plt.figure(figsize=[2.5, 3])
+    ax1 = fig.add_subplot(gs[:2, :])
     ax1.set_ylabel(r"$\sigma_{\mathrm{tot}}$ ($\mathrm{mm}^{-1}$)")
     ax1.set_yscale('log')
     ax1.set_xscale('log')
-    ax1.plot(xvals*1000., yvals1, "r-", label=label1)
-    ax1.plot(xvals*1000., yvals2, "b--", label=label2)
+    ax1.plot(xvals*1000., yvals1, "y-", label=label1)
+    ax1.plot(xvals*1000., yvals2, "r:", label=label2)
     plt.legend()
     plt.setp(ax1.get_xticklabels(), visible=False)
 
-    ax2 = fig.add_subplot(212, sharex=ax1)
-    ax2.set_ylabel(r"Difference (%)")
+    ax2 = fig.add_subplot(gs[2, :], sharex=ax1)
+    ax2.set_ylabel(r"Difference ($\%$)")
     ax2.set_xlabel("Energy (keV)")
+    ax2.set_yscale("linear")
     maxabsdiff = max(abs(100*(yvals1 - yvals2)/yvals1))
     ax2.set_ylim([-1.1*maxabsdiff, 1.1*maxabsdiff])
     ax2.plot(xvals*1000., diff, "r-")
-    ax2.plot(xvals*1000., np.zeros(len(xvals)), 'b:')
-    ax2.set_yticks(ax.get_yticks()[:-1])
-
+    ax2.plot(xvals*1000., np.zeros(len(xvals)), 'k:')
     fig.subplots_adjust(hspace=0)
+    fig.show()
+    if ax2.get_yticklabels()[-1].get_text() == "":
+        ax2.get_yticklabels()[-2].set_visible(False)
+    else:
+        ax2.get_yticklabels()[-1].set_visible(False)
 
     return fig
 
@@ -126,7 +145,7 @@ if __name__ == "__main__":
         m2 = run["m2"]
         l2 = label_dict[m2]
         fig = compare(xvals, p, process_dict[p], m1, m2, l1, l2, "0.0001", "10")
-        fig.savefig("-".join([p, m1, m2])+".pdf", bbox_inches="tight")
+        fig.savefig("_".join(["xs", p, m1, m2])+".pdf", bbox_inches="tight")
 
     #
     # files1 = ["proton_davis_eBrem_0.0001_10.dat",

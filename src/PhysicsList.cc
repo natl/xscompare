@@ -134,7 +134,7 @@ void PhysicsList::SetMinEnergyRange(const G4double minEnergy)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
-    G4double en_min, G4double en_max)
+    G4double en_min, G4double en_max, G4double cut)
 {
     G4NistManager* nist = G4NistManager::Instance();
     G4Material* mat;
@@ -220,16 +220,16 @@ void PhysicsList::SaveXS(G4String particle, G4String material, G4String process,
 
     G4cout << "Saving xs for " << thisParticleDefn->GetParticleName()
            << " in material " << mat->GetName() << ". Process: " << process
-           << G4endl;
+           << ". Cut: " << cut/keV << " keV."<< G4endl;
 
     std::ofstream file(filename, std::ofstream::out);
     file << "# energy_MeV xsection_mm^-1\n";
     G4EmCalculator* calculator = new G4EmCalculator();
-    calculator->SetVerbose(2);
+    calculator->SetVerbose(0);
     while (en < en_max)
     {
         xs = calculator->ComputeCrossSectionPerVolume(en, thisParticleDefn,
-            process, mat)*mm;
+            process, mat, cut)*mm;
         file << en << " " << xs << "\n";
         en = en + 100*eV;
     }

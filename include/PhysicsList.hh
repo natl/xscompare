@@ -18,7 +18,8 @@ class PhysicsList: public G4VModularPhysicsList
           void SetMinEnergyRange(const G4double);
           virtual void ConstructProcess();
 
-          void SaveXS(G4String, G4String, G4String, G4double, G4double);
+          void SaveXS(G4String, G4String, G4String, G4double, G4double,
+                      G4double);
 
     private:
           G4String fEmName;

@@ -64,7 +64,9 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
         G4String process = strvec[2];
         G4double en_min = std::stod(strvec[3])*MeV;
         G4double en_max = std::stod(strvec[4])*MeV;
-        fPhysicsList->SaveXS(particle, material, process, en_min, en_max);
+        G4double cut = 0*keV;
+        if (strvec.size() >= 6) cut = std::stod(strvec[5])*keV;
+        fPhysicsList->SaveXS(particle, material, process, en_min, en_max, cut);
     }
 
 }

@@ -95,7 +95,7 @@ def comparison_plot(files1, files2, label1, label2, xvals):
     ax1.set_xscale('log')
     ax1.plot(xvals*1000., yvals1, "y-", label=label1)
     ax1.plot(xvals*1000., yvals2, "r:", label=label2)
-    plt.legend()
+    plt.legend(loc=0, frameon=False)
     plt.setp(ax1.get_xticklabels(), visible=False)
 
     ax2 = fig.add_subplot(gs[2, :], sharex=ax1)
@@ -139,28 +139,29 @@ def compare_directories(xvals, dir1, dir2):
     """
     processes = re.compile("eBrem|msc|eIoni|compt|phot|Rayl|conv")
     particles = re.compile("e-|proton|gamma")
+    materials = re.compile("cellular|water|davis")
     files1 = os.listdir(dir1)
     files2 = os.listdir(dir2)
     files = set.intersection(set(files1), set(files2))
+    print(files)
     for fname in files:
         if fname[-4:] == ".dat":
             process = processes.search(fname).group()
             particle = particles.search(fname).group()
+            material = materials.search(fname).group()
             f1 = dir1 + '/' + fname
             f2 = dir2 + '/' + fname
-            l1 = " ".join([dir1, particle, process])
-            l2 = " ".join([dir2, particle, process])
-            figname = "_".join([dir1, dir2, particle, process]) + ".pdf"
+            l1 = " ".join([dir1, particle, process, material])
+            l2 = " ".join([dir2, particle, process, material])
+            figname = "_".join([dir1, dir2, particle, process, material]) + ".pdf"
             print("Making {}".format(figname))
             fig = comparison_plot([f1], [f2], l1, l2, xvals)
             fig.savefig(figname, bbox_inches="tight")
-    files1 = ["_".join([particle, medium1, process, emin, emax]) + ".dat" for process in processes]
-    files2 = ["_".join([particle, medium2, process, emin, emax]) + ".dat" for process in processes]
-    fig = comparison_plot(files1, files2, label1, label2, xvals)
-    return fig
+            plt.close(fig)
+    return None
 
 if __name__ == "__main__":
-    xvals = np.arange(0.0001, 10.000, 0.0001)
+    xvals = np.arange(0.00025, 10.000, 0.0001)
     compare_directories(xvals, "pen", "liv")
     compare_directories(xvals, "opt4", "liv")
     compare_directories(xvals, "opt4", "pen")
@@ -189,3 +190,4 @@ if __name__ == "__main__":
         l2 = label_dict[m2]
         fig = compare(xvals, p, process_dict[p], m1, m2, l1, l2, "0.0001", "10")
         fig.savefig("_".join(["xs", p, m1, m2])+".pdf", bbox_inches="tight")
+        plt.close(fig)

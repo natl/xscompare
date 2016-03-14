@@ -41,15 +41,12 @@
 
 /phys/printxs proton water msc 0.0001 10 0.1
 /phys/printxs proton water eIoni 0.0001 10 0.1
-/phys/printxs proton water eBrem 0.0001 10 0.1
 
 /phys/printxs proton davis msc 0.0001 10 0.1
 /phys/printxs proton davis eIoni 0.0001 10 0.1
-/phys/printxs proton davis eBrem 0.0001 10 0.1
 
 /phys/printxs proton cellular msc 0.0001 10 0.1
 /phys/printxs proton cellular eIoni 0.0001 10 0.1
-/phys/printxs proton cellular eBrem 0.0001 10 0.1
 
 /phys/printxs gamma water conv 0.0001 10 0.1
 /phys/printxs gamma water phot 0.0001 10 0.1

@@ -8,7 +8,8 @@ from __future__ import division, print_function, unicode_literals
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
+import re
 import matplotlib.gridspec as gridspec
 
 
@@ -77,6 +78,13 @@ def comparison_plot(files1, files2, label1, label2, xvals):
         xp, yp = np.loadtxt(f, unpack=True)
         yvals2 += np.interp(xvals, xp, yp, left=0, right=0)
 
+    if 0 in yvals1 or 0 in yvals2:
+        ok = np.where(yvals1 != 0)[0]
+        yvals1 = yvals1[ok]
+        yvals2 = yvals2[ok]
+        xvals = xvals[ok]
+
+
     diff = 100*(yvals1 - yvals2)/yvals1
     gs = gridspec.GridSpec(3,1)
 
@@ -121,11 +129,46 @@ def compare(xvals, particle, processes, medium1, medium2, label1, label2, emin,
     fig = comparison_plot(files1, files2, label1, label2, xvals)
     return fig
 
+
+def compare_directories(xvals, dir1, dir2):
+    """
+    fig = compare(xvals, particle, processes, medium1, medium2, label1, label2,
+                  emin, emax)
+
+    emin and emax are strings
+    """
+    processes = re.compile("eBrem|msc|eIoni|compt|phot|Rayl|conv")
+    particles = re.compile("e-|proton|gamma")
+    files1 = os.listdir(dir1)
+    files2 = os.listdir(dir2)
+    files = set.intersection(set(files1), set(files2))
+    for fname in files:
+        if fname[-4:] == ".dat":
+            process = processes.search(fname).group()
+            particle = particles.search(fname).group()
+            f1 = dir1 + '/' + fname
+            f2 = dir2 + '/' + fname
+            l1 = " ".join([dir1, particle, process])
+            l2 = " ".join([dir2, particle, process])
+            figname = "_".join([dir1, dir2, particle, process]) + ".pdf"
+            print("Making {}".format(figname))
+            fig = comparison_plot([f1], [f2], l1, l2, xvals)
+            fig.savefig(figname, bbox_inches="tight")
+    files1 = ["_".join([particle, medium1, process, emin, emax]) + ".dat" for process in processes]
+    files2 = ["_".join([particle, medium2, process, emin, emax]) + ".dat" for process in processes]
+    fig = comparison_plot(files1, files2, label1, label2, xvals)
+    return fig
+
 if __name__ == "__main__":
     xvals = np.arange(0.0001, 10.000, 0.0001)
+    compare_directories(xvals, "pen", "liv")
+    compare_directories(xvals, "opt4", "liv")
+    compare_directories(xvals, "opt4", "pen")
+
     e_processes = ["eBrem", "msc", "eIoni"]
+    proton_processes = ["msc"]
     gamma_processes = ["compt", "phot", "conv", "Rayl"]
-    process_dict = {"e-": e_processes, "proton": e_processes, "gamma": gamma_processes}
+    process_dict = {"e-": e_processes, "proton": proton_processes, "gamma": gamma_processes}
     label_dict = {"davis": "Davis Broth", "water": "Water", "cellular": "Cell"}
 
     runs = [{"particle": "e-", "m1": "davis", "m2": "water"},
@@ -146,83 +189,3 @@ if __name__ == "__main__":
         l2 = label_dict[m2]
         fig = compare(xvals, p, process_dict[p], m1, m2, l1, l2, "0.0001", "10")
         fig.savefig("_".join(["xs", p, m1, m2])+".pdf", bbox_inches="tight")
-
-    #
-    # files1 = ["proton_davis_eBrem_0.0001_10.dat",
-    #           "proton_davis_msc_0.0001_10.dat",
-    #           "proton_davis_eIoni_0.0001_10.dat"]
-    # files2 = ["proton_G4_WATER_eBrem_0.0001_10.dat",
-    #           "proton_G4_WATER_msc_0.0001_10.dat",
-    #           "proton_G4_WATER_eIoni_0.0001_10.dat"]
-    # fig_p = comparison_plot(files1, files2, "Davis Medium", "Water", xvals)
-    # fig_p.savefig("xs-proton-davis-water.pdf", bbox_inches="tight")
-    #
-    # files1 = ["gamma_davis_compt_0.0001_10.dat",
-    #           "gamma_davis_phot_0.0001_10.dat",
-    #           "gamma_davis_conv_0.0001_10.dat",
-    #           "gamma_davis_Rayl_0.0001_10.dat"]
-    # files2 = ["gamma_G4_WATER_compt_0.0001_10.dat",
-    #           "gamma_G4_WATER_phot_0.0001_10.dat",
-    #           "gamma_G4_WATER_conv_0.0001_10.dat",
-    #           "gamma_G4_WATER_Rayl_0.0001_10.dat"]
-    # fig_g = comparison_plot(files1, files2, "Davis Medium", "Water", xvals)
-    # fig_g.savefig("xs-gamma-davis-water.pdf", bbox_inches="tight")
-    #
-    # files1 = ["e-_davis_eBrem_0.0001_10.dat",
-    #           "e-_davis_msc_0.0001_10.dat",
-    #           "e-_davis_eIoni_0.0001_10.dat"]
-    # files2 = ["e-_cellular_eBrem_0.0001_10.dat",
-    #           "e-_cellular_msc_0.0001_10.dat",
-    #           "e-_cellular_eIoni_0.0001_10.dat"]
-    # fig_e = comparison_plot(files1, files2, "Davis Medium", "Cell", xvals)
-    # fig_e.savefig("xs-electron-davis-cellular.pdf", bbox_inches="tight")
-    #
-    # files1 = ["proton_davis_eBrem_0.0001_10.dat",
-    #           "proton_davis_msc_0.0001_10.dat",
-    #           "proton_davis_eIoni_0.0001_10.dat"]
-    # files2 = ["proton_cellular_eBrem_0.0001_10.dat",
-    #           "proton_cellular_msc_0.0001_10.dat",
-    #           "proton_cellular_eIoni_0.0001_10.dat"]
-    # fig_p = comparison_plot(files1, files2, "Davis Medium", "Cell", xvals)
-    # fig_p.savefig("xs-proton-davis-cellular.pdf", bbox_inches="tight")
-    #
-    # files1 = ["gamma_davis_compt_0.0001_10.dat",
-    #           "gamma_davis_phot_0.0001_10.dat",
-    #           "gamma_davis_conv_0.0001_10.dat",
-    #           "gamma_davis_Rayl_0.0001_10.dat"]
-    # files2 = ["gamma_cellular_compt_0.0001_10.dat",
-    #           "gamma_cellular_phot_0.0001_10.dat",
-    #           "gamma_cellular_conv_0.0001_10.dat",
-    #           "gamma_cellular_Rayl_0.0001_10.dat"]
-    # fig_g = comparison_plot(files1, files2, "Davis Medium", "Cell", xvals)
-    # fig_g.savefig("xs-gamma-davis-cellular.pdf", bbox_inches="tight")
-    #
-    #
-    # files1 = ["e-_cellular_eBrem_0.0001_10.dat",
-    #           "e-_cellular_msc_0.0001_10.dat",
-    #           "e-_cellular_eIoni_0.0001_10.dat"]
-    # files2 = ["e-_G4_WATER_eBrem_0.0001_10.dat",
-    #           "e-_G4_WATER_msc_0.0001_10.dat",
-    #           "e-_G4_WATER_eIoni_0.0001_10.dat"]
-    # fig_e = comparison_plot(files1, files2, "Cell", "Water", xvals)
-    # fig_e.savefig("xs-electron-cellular-water.pdf", bbox_inches="tight")
-    #
-    # files1 = ["proton_cellular_eBrem_0.0001_10.dat",
-    #           "proton_cellular_msc_0.0001_10.dat",
-    #           "proton_cellular_eIoni_0.0001_10.dat"]
-    # files2 = ["proton_G4_WATER_eBrem_0.0001_10.dat",
-    #           "proton_G4_WATER_msc_0.0001_10.dat",
-    #           "proton_G4_WATER_eIoni_0.0001_10.dat"]
-    # fig_p = comparison_plot(files1, files2, "Cell", "Water", xvals)
-    # fig_p.savefig("xs-proton-cellular-water.pdf", bbox_inches="tight")
-    #
-    # files1 = ["gamma_cellular_compt_0.0001_10.dat",
-    #           "gamma_cellular_phot_0.0001_10.dat",
-    #           "gamma_cellular_conv_0.0001_10.dat",
-    #           "gamma_cellular_Rayl_0.0001_10.dat"]
-    # files2 = ["gamma_G4_WATER_compt_0.0001_10.dat",
-    #           "gamma_G4_WATER_phot_0.0001_10.dat",
-    #           "gamma_G4_WATER_conv_0.0001_10.dat",
-    #           "gamma_G4_WATER_Rayl_0.0001_10.dat"]
-    # fig_g = comparison_plot(files1, files2, "Cell", "Water", xvals)
-    # fig_g.savefig("xs-gamma-cellular-water.pdf", bbox_inches="tight")
